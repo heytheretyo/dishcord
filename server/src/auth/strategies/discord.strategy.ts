@@ -15,8 +15,8 @@ export class DiscordStrategy extends PassportStrategy(Strategy) {
   }
 
   async validate(
-    accessToken: string,
-    refreshToken: string,
+    _accessToken: string,
+    _refreshToken: string,
     profile: any,
     done: Function,
   ) {

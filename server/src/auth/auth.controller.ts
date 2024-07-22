@@ -1,26 +1,30 @@
-import { Controller, Get, Req, UseGuards } from '@nestjs/common';
+import { Controller, Get, Req, Res, UseGuards } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { AuthGuard } from '@nestjs/passport';
-import { Request } from 'express';
+import { Request, Response } from 'express';
+import { AuthenticatedGuard, DiscordAuthGuard } from './auth.guard';
 
 @Controller('auth')
 export class AuthController {
   constructor(private authService: AuthService) {}
 
   @Get('login')
-  @UseGuards(AuthGuard('discord'))
-  async login(@Req() req: Request) {}
+  @UseGuards(DiscordAuthGuard)
+  async login() {}
 
   @Get('discord/callback')
-  @UseGuards(AuthGuard('discord'))
+  @UseGuards(DiscordAuthGuard)
   async redirect(@Req() req: Request) {
-    const user = req.user;
-    return this.authService.validateUser(user);
+    return req.user;
+  }
+
+  @Get('me')
+  @UseGuards(AuthenticatedGuard)
+  status(@Req() req: Request) {
+    return req.user;
   }
 
   @Get('logout')
-  @UseGuards(AuthGuard('discord'))
-  logout(@Req() request: Request): Promise<any> {
-    return this.authService.logout(request);
+  logout(@Req() req: Request) {
+    return this.authService.logout(req);
   }
 }
