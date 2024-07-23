@@ -1,14 +1,14 @@
 import { HttpStatus, Injectable, Req, Res } from '@nestjs/common';
-import { UserService } from '../user/user.service';
+import { UsersService } from '../users/users.service';
 import { Request } from 'express';
 import { User } from '../schemas/user.schema';
 
 @Injectable()
 export class AuthService {
-  constructor(private userService: UserService) {}
+  constructor(private usersService: UsersService) {}
 
   validateUser(profile: any): Promise<User> {
-    return this.userService.findOrCreate(profile);
+    return this.usersService.findOrCreate(profile);
   }
 
   logout(@Req() req: Request): Promise<any> {
