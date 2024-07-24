@@ -1,4 +1,4 @@
-import { Controller, Get, Req, UseGuards } from '@nestjs/common';
+import { Controller, Get, Req, Res, Session, UseGuards } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { Request, Response } from 'express';
 import { AuthenticatedGuard, DiscordAuthGuard } from './auth.guard';
@@ -13,8 +13,8 @@ export class AuthController {
 
   @Get('discord/callback')
   @UseGuards(DiscordAuthGuard)
-  async redirect(@Req() req: Request) {
-    return req.user;
+  async redirect(@Res() res: Response) {
+    return res.redirect('http://localhost:4200');
   }
 
   @Get('me')
@@ -26,5 +26,15 @@ export class AuthController {
   @Get('logout')
   logout(@Req() req: Request) {
     return this.authService.logout(req);
+  }
+
+  @Get('check-session')
+  checkSession(@Session() session: any) {
+    // console.log(session);
+    if (session.passport != null) {
+      return { isAuthenticated: true };
+    } else {
+      return { isAuthenticated: false };
+    }
   }
 }

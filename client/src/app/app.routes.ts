@@ -3,6 +3,7 @@ import { NotFoundComponent } from './notfound/notfound.component';
 import { ProfileComponent } from './profile/profile.component';
 import { HomeComponent } from './home/home.component';
 import { ExploreComponent } from './explore/explore.component';
+import { authGuard } from './guards/auth.guard';
 
 export const routes: Routes = [
   {
@@ -16,6 +17,7 @@ export const routes: Routes = [
   {
     path: 'profile',
     component: ProfileComponent,
+    canActivate: [authGuard],
   },
   {
     path: '',

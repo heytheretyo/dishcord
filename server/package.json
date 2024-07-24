@@ -27,6 +27,7 @@
     "@nestjs/mongoose": "^10.0.10",
     "@nestjs/passport": "^10.0.3",
     "@nestjs/platform-express": "^10.0.0",
+    "class-validator": "^0.14.1",
     "express-session": "^1.18.0",
     "mongoose": "^8.5.1",
     "passport": "^0.7.0",

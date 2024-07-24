@@ -16,6 +16,11 @@ async function bootstrap() {
     }),
   );
 
+  app.enableCors({
+    origin: 'http://localhost:4200',
+    credentials: true,
+  });
+
   app.use(passport.initialize());
   app.use(passport.session());
   app.useGlobalFilters(new CustomExceptionFilter());
