@@ -4,6 +4,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { Post } from '../schemas/post.schema';
 import { CreatePostDto } from './dto/create-post.dto';
+import { User } from '../schemas/user.schema';
 
 type PostResponse = Promise<{
   message: string;
@@ -13,7 +14,23 @@ type PostResponse = Promise<{
 
 @Injectable()
 export class PostsService {
-  constructor(@InjectModel(Post.name) private postModel: Model<Post>) {}
+  constructor(
+    @InjectModel(Post.name) private postModel: Model<Post>,
+    @InjectModel(User.name) private userModel: Model<User>,
+  ) {}
+
+  async findAll() {
+    try {
+      return await this.postModel.find({}).exec();
+    } catch (error) {
+      console.error('Error fetching posts:', error);
+      throw new BadRequestException('error fetching post');
+    }
+  }
+
+  async findByUserId(userId: Types.ObjectId) {
+    return this.postModel.find({ author: userId }).exec();
+  }
 
   async createPost(
     createPostDto: CreatePostDto,
@@ -21,32 +38,36 @@ export class PostsService {
   ): PostResponse {
     try {
       const newPost = new this.postModel({
-        ...createPostDto,
+        text: createPostDto.text,
         author: authorId,
       });
       const savedPost = await newPost.save();
+
+      await this.userModel.findByIdAndUpdate(
+        authorId,
+        { $push: { posts: savedPost._id } },
+        { new: true },
+      );
+
       return {
-        message: 'Post created successfully',
+        message: 'post created successfully',
         statusCode: HttpStatus.CREATED,
         post: savedPost,
       };
     } catch (error) {
+      console.log(error);
       throw new BadRequestException('error creating post');
     }
   }
 
-  async updatePost(
-    postId: string,
-    updatePostDto: UpdatePostDto,
-    userId: Types.ObjectId,
-  ): PostResponse {
+  async updatePost(postId: string, updatePostDto: UpdatePostDto): PostResponse {
     const post = await this.postModel.findById(postId).exec();
     if (!post) {
       return { message: 'post not found', statusCode: HttpStatus.NOT_FOUND };
     }
 
     const now = new Date();
-    const postCreationTime = post.createdAt;
+    const postCreationTime = post['createdAt'];
     const timeDiff = now.getTime() - postCreationTime.getTime();
     const thirtyMinutesInMs = 30 * 60 * 1000;
 
@@ -134,5 +155,39 @@ export class PostsService {
   async findPostById(postId: string) {
     const post = await this.postModel.findById(postId).exec();
     return post;
+  }
+
+  async toggleUpvote(postId: string, userId: Types.ObjectId): PostResponse {
+    const post = await this.postModel.findById(postId).exec();
+    if (!post) {
+      return { message: 'post not found', statusCode: HttpStatus.NOT_FOUND };
+    }
+    if (post.upvotes.includes(userId)) {
+      post.upvotes = post.upvotes.filter((id) => !id.equals(userId));
+      await post.save();
+      return { message: 'upvote removed', statusCode: HttpStatus.OK };
+    } else {
+      post.upvotes.push(userId);
+      post.downvotes = post.downvotes.filter((id) => !id.equals(userId)); // Remove downvote if exists
+      await post.save();
+      return { message: 'upvote added', statusCode: HttpStatus.OK };
+    }
+  }
+
+  async toggleDownvote(postId: string, userId: Types.ObjectId): PostResponse {
+    const post = await this.postModel.findById(postId).exec();
+    if (!post) {
+      return { message: 'post not found', statusCode: HttpStatus.NOT_FOUND };
+    }
+    if (post.downvotes.includes(userId)) {
+      post.downvotes = post.downvotes.filter((id) => !id.equals(userId));
+      await post.save();
+      return { message: 'downvote removed', statusCode: HttpStatus.OK };
+    } else {
+      post.downvotes.push(userId);
+      post.upvotes = post.upvotes.filter((id) => !id.equals(userId)); // Remove upvote if exists
+      await post.save();
+      return { message: 'downvote added', statusCode: HttpStatus.OK };
+    }
   }
 }

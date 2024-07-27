@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { AuthService } from '../services/auth.service';
 
 @Component({
   selector: 'app-home',
@@ -7,7 +8,7 @@ import { Component } from '@angular/core';
   templateUrl: './home.component.html',
 })
 export class HomeComponent {
-  constructor() {}
+  constructor(private authService: AuthService) {}
 
   toLogin() {
     window.open('http://localhost:3000/auth/login', '_blank');

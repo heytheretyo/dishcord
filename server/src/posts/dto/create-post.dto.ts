@@ -6,18 +6,19 @@ export class CreatePostDto {
   @IsNotEmpty()
   text: string;
 
-  @IsArray()
-  @IsOptional()
-  upvotes?: Types.ObjectId[];
+  // @IsArray()
+  // @IsOptional()
+  // upvotes?: Types.ObjectId[];
 
-  @IsArray()
-  @IsOptional()
-  downvotes?: Types.ObjectId[];
+  // @IsArray()
+  // @IsOptional()
+  // downvotes?: Types.ObjectId[];
 
-  @IsString()
-  author?: Types.ObjectId;
+  // @IsString()
+  // @IsOptional()
+  // author?: Types.ObjectId;
 
-  @IsOptional()
-  @IsString()
-  createdAt?: string;
+  // @IsOptional()
+  // @IsString()
+  // createdAt?: string;
 }

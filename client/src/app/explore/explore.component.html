@@ -1,1 +1,16 @@
-<p>explore works!</p>
+<div class="py-4">
+  <div *ngIf="posts.length > 0" class="flex flex-col gap-2">
+    <div *ngFor="let post of posts" class="">
+      <div>
+        <h2>{{ post["text"] }}</h2>
+        <p>{{ post["author"] }}</p>
+      </div>
+      <div class="flex gap-3">
+        <h1>upvotes: {{ post["upvotes"].length }}</h1>
+        <button (click)="upvote(post)">🔼</button>
+        <h1>downvotes: {{ post["downvotes"].length }}</h1>
+        <button (click)="downvote(post)">🔽</button>
+      </div>
+    </div>
+  </div>
+</div>

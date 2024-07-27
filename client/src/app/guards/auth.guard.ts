@@ -1,28 +1,17 @@
-import { HttpClient } from '@angular/common/http';
 import { inject } from '@angular/core';
 import { CanActivateFn, Router } from '@angular/router';
-import { catchError, map, of } from 'rxjs';
-import { environment } from '../environment';
+import { AuthService } from '../services/auth.service';
+import { tap } from 'rxjs';
 
-export const authGuard: CanActivateFn = (route, state) => {
-  const http = inject(HttpClient);
+export const authGuard: CanActivateFn = () => {
   const router = inject(Router);
+  const authService = inject(AuthService);
 
-  return http
-    .get(`${environment.apiUrl}/auth/check-session`, { withCredentials: true })
-    .pipe(
-      map((response: any) => {
-        if (response.isAuthenticated) {
-          return true;
-        } else {
-          router.navigate(['/home']);
-          return false;
-        }
-      }),
-      catchError((error) => {
-        console.error('Error during session check:', error);
+  return authService.checkSession().pipe(
+    tap((isAuthenticated) => {
+      if (!isAuthenticated) {
         router.navigate(['/home']);
-        return of(false);
-      })
-    );
+      }
+    })
+  );
 };
